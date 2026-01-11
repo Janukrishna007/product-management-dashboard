@@ -7,6 +7,7 @@ import { useAuthStore } from "@/lib/store"
 import { ShoppingCart, Star, Edit } from "lucide-react"
 import { useState } from "react"
 import { formatUSDtoINR } from "@/lib/currency"
+import { EditProductDialog } from "@/components/edit-product-dialog"
 
 interface ProductCardProps {
   product: any
@@ -31,7 +32,8 @@ export function ProductCard({ product, onEdit }: ProductCardProps) {
       whileHover={{ y: -8 }}
       className="h-full"
     >
-      <Card className="overflow-hidden h-full flex flex-col hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm border-gray-200/50 group">
+      <Card className="overflow-hidden h-full flex flex-col hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm border-gray-200/50 group relative">
+        <EditProductDialog product={product} />
         <div className="relative w-full h-48 bg-gradient-to-br from-slate-100 via-blue-100/50 to-teal-100/60 overflow-hidden">
           <img
             src={product.thumbnail || "/placeholder.svg"}

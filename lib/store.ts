@@ -28,6 +28,9 @@ interface AuthStore {
   user: { id: number; username: string; token: string } | null
   cart: CartItem[]
   orders: Order[]
+  searchQuery: string
+  selectedCategory: string
+  priceRange: [number, number]
   setUser: (user: any) => void
   logout: () => void
   addToCart: (product: any) => void
@@ -36,6 +39,10 @@ interface AuthStore {
   clearCart: () => void
   createOrder: (shippingInfo?: Order["shippingInfo"]) => void
   getOrders: () => Order[]
+  setSearchQuery: (query: string) => void
+  setCategory: (category: string) => void
+  setPriceRange: (range: [number, number]) => void
+  clearFilters: () => void
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -119,4 +126,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   getOrders: () => get().orders,
+
+  // Filter state
+  searchQuery: "",
+  selectedCategory: "",
+  priceRange: [0, 10000],
+
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  setCategory: (category) => set({ selectedCategory: category }),
+  setPriceRange: (range) => set({ priceRange: range }),
+  clearFilters: () => set({ searchQuery: "", selectedCategory: "", priceRange: [0, 10000] }),
 }))

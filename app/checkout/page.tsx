@@ -53,13 +53,13 @@ export default function CheckoutPage() {
 
     if (orderComplete) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-teal-50/30 flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="max-w-md w-full"
                 >
-                    <Card className="glass border-border/30 text-center">
+                    <Card className="bg-white border-gray-200 shadow-xl text-center">
                         <CardContent className="pt-12 pb-8">
                             <motion.div
                                 initial={{ scale: 0 }}
@@ -68,8 +68,8 @@ export default function CheckoutPage() {
                             >
                                 <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
                             </motion.div>
-                            <h2 className="text-2xl font-bold mb-2">Order Placed Successfully!</h2>
-                            <p className="text-muted-foreground mb-6">
+                            <h2 className="text-2xl font-bold mb-2 text-gray-900">Order Placed Successfully!</h2>
+                            <p className="text-gray-600 mb-6">
                                 Thank you for your order. We'll send you a confirmation email shortly.
                             </p>
                             <div className="flex gap-3">
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
                                     <Button
                                         onClick={() => router.push("/dashboard")}
                                         variant="outline"
-                                        className="w-full border-gray-300 bg-white hover:bg-gray-50"
+                                        className="w-full border-gray-300 bg-white hover:bg-gray-50 text-gray-900"
                                     >
                                         Continue Shopping
                                     </Button>
@@ -99,13 +99,13 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <header className="border-b border-border/40 sticky top-0 z-30 bg-background/80 backdrop-blur-md">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-teal-50/30">
+            <header className="border-b border-gray-200 sticky top-0 z-30 bg-white/90 backdrop-blur-md shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <Button
                         variant="ghost"
                         onClick={() => router.push("/dashboard")}
-                        className="gap-2"
+                        className="gap-2 hover:bg-gray-100"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Back to Dashboard
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
                 <motion.h1
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl font-bold mb-8 gradient-text"
+                    className="text-3xl font-bold mb-8 text-gray-900"
                 >
                     Checkout
                 </motion.h1>
@@ -128,64 +128,64 @@ export default function CheckoutPage() {
                         animate={{ opacity: 1, x: 0 }}
                         className="md:col-span-2"
                     >
-                        <Card className="glass border-border/30">
-                            <CardHeader>
-                                <CardTitle>Shipping Information</CardTitle>
+                        <Card className="bg-white border-gray-200 shadow-lg">
+                            <CardHeader className="border-b border-gray-100">
+                                <CardTitle className="text-gray-900">Shipping Information</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="pt-6">
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div>
-                                        <label className="text-sm font-semibold">Full Name</label>
+                                        <label className="text-sm font-semibold text-gray-700 block mb-1">Full Name</label>
                                         <Input
                                             required
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="mt-1 bg-white border-gray-300"
+                                            className="bg-white border-gray-300 text-gray-900"
                                             placeholder="John Doe"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-semibold">Email</label>
+                                        <label className="text-sm font-semibold text-gray-700 block mb-1">Email</label>
                                         <Input
                                             required
                                             type="email"
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="mt-1 bg-white border-gray-300"
+                                            className="bg-white border-gray-300 text-gray-900"
                                             placeholder="john@example.com"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-semibold">Address</label>
+                                        <label className="text-sm font-semibold text-gray-700 block mb-1">Address</label>
                                         <Input
                                             required
                                             value={formData.address}
                                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                            className="mt-1 bg-white border-gray-300"
+                                            className="bg-white border-gray-300 text-gray-900"
                                             placeholder="123 Main St"
                                         />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-sm font-semibold">City</label>
+                                            <label className="text-sm font-semibold text-gray-700 block mb-1">City</label>
                                             <Input
                                                 required
                                                 value={formData.city}
                                                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                                className="mt-1 bg-white border-gray-300"
+                                                className="bg-white border-gray-300 text-gray-900"
                                                 placeholder="New York"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-sm font-semibold">ZIP Code</label>
+                                            <label className="text-sm font-semibold text-gray-700 block mb-1">ZIP Code</label>
                                             <Input
                                                 required
                                                 value={formData.zipCode}
                                                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                                                className="mt-1 bg-white border-gray-300"
+                                                className="bg-white border-gray-300 text-gray-900"
                                                 placeholder="10001"
                                             />
                                         </div>
@@ -204,28 +204,27 @@ export default function CheckoutPage() {
                             </CardContent>
                         </Card>
                     </motion.div>
-
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                     >
-                        <Card className="glass border-border/30 sticky top-24">
-                            <CardHeader>
-                                <CardTitle>Order Summary</CardTitle>
+                        <Card className="bg-white border-gray-200 shadow-lg sticky top-24">
+                            <CardHeader className="border-b border-gray-100">
+                                <CardTitle className="text-gray-900">Order Summary</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent className="space-y-4 pt-6">
                                 <div className="space-y-3">
                                     {cart.map((item) => (
                                         <div key={item.id} className="flex gap-3">
                                             <img
                                                 src={item.thumbnail}
                                                 alt={item.title}
-                                                className="w-16 h-16 object-cover rounded-lg"
+                                                className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                                             />
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium line-clamp-1">{item.title}</p>
-                                                <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                                                <p className="text-sm font-semibold text-accent">
+                                                <p className="text-sm font-medium line-clamp-1 text-gray-900">{item.title}</p>
+                                                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                                                <p className="text-sm font-semibold text-slate-700">
                                                     {formatUSDtoINR(item.price * item.quantity)}
                                                 </p>
                                             </div>
@@ -233,18 +232,18 @@ export default function CheckoutPage() {
                                     ))}
                                 </div>
 
-                                <div className="border-t border-border/30 pt-4 space-y-2">
-                                    <div className="flex justify-between text-sm">
+                                <div className="border-t border-gray-200 pt-4 space-y-2">
+                                    <div className="flex justify-between text-sm text-gray-700">
                                         <span>Subtotal</span>
                                         <span>{formatUSDtoINR(total)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-sm text-gray-700">
                                         <span>Shipping</span>
-                                        <span className="text-green-500">FREE</span>
+                                        <span className="text-green-600 font-semibold">FREE</span>
                                     </div>
-                                    <div className="flex justify-between font-bold text-lg pt-2 border-t border-border/30">
+                                    <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 text-gray-900">
                                         <span>Total</span>
-                                        <span className="text-accent">{formatUSDtoINR(total)}</span>
+                                        <span className="text-slate-700">{formatUSDtoINR(total)}</span>
                                     </div>
                                 </div>
                             </CardContent>

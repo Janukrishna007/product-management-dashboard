@@ -6,10 +6,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/lib/store"
 import { ProductCard } from "@/components/product-card"
 import { CartSidebar } from "@/components/cart-sidebar"
-import { ProductForm } from "@/components/product-form"
+import { AddProductDialog } from "@/components/add-product-dialog"
+import { ProductFilters } from "@/components/product-filters"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ShoppingCart, LogOut, Package, TrendingUp, BarChart3, Home, Search, SlidersHorizontal } from "lucide-react"
+import { ShoppingCart, LogOut, Package, TrendingUp, BarChart3, Home, Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const fetcher = async (url: string) => {
@@ -24,13 +24,10 @@ export default function DashboardPage() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const cartCount = useAuthStore((state) => state.cart.length)
+  const { searchQuery, selectedCategory, priceRange } = useAuthStore()
 
   const [cartOpen, setCartOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<any>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 })
-  const [showFilters, setShowFilters] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { data: productsData, isLoading, error } = useQuery({
     queryKey: ["products"],
@@ -66,13 +63,13 @@ export default function DashboardPage() {
   })
 
   const products = productsData?.products || []
-  const categories = [...new Set(products.map((p: any) => p.category))] as string[]
 
+  // Apply filters from Zustand store
   const filteredProducts = products.filter((product: any) => {
+    const matchesSearch = !searchQuery || product.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = !selectedCategory || product.category === selectedCategory
-    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max
-    return matchesCategory && matchesSearch && matchesPrice
+    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+    return matchesSearch && matchesCategory && matchesPrice
   })
 
   if (!user) {
@@ -89,20 +86,42 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-teal-50/40">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-xl flex flex-col">
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-xl flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo */}
         <div className="p-6 border-b border-gray-200/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg">
-              <Package className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="font-bold text-lg bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+                  Dashboard
+                </h1>
+                <p className="text-xs text-gray-500">Product Manager</p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-bold text-lg bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-                Dashboard
-              </h1>
-              <p className="text-xs text-gray-500">Product Manager</p>
-            </div>
+            {/* Close button for mobile */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
           </div>
         </div>
 
@@ -111,7 +130,10 @@ export default function DashboardPage() {
           {navItems.map((item) => (
             <button
               key={item.label}
-              onClick={() => item.path !== "#" && router.push(item.path)}
+              onClick={() => {
+                if (item.path !== "#") router.push(item.path)
+                setSidebarOpen(false)
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${item.active
                 ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white shadow-lg shadow-slate-500/20"
                 : "text-gray-600 hover:bg-gray-100"
@@ -154,28 +176,24 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
         <header className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-          <div className="px-8 py-4 flex items-center justify-between">
-            <div className="flex-1 max-w-2xl">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search products..."
-                  className="pl-12 h-12 bg-white border-gray-200 focus:border-slate-600 focus:ring-slate-600/20 rounded-xl shadow-sm"
-                />
+          <div className="px-4 lg:px-8 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Hamburger Menu */}
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Products</h2>
+                <p className="text-sm text-gray-500">Manage your product catalog</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 ml-6">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setShowFilters(!showFilters)}
-                className="relative border-gray-200 hover:bg-purple-50 hover:border-purple-300 rounded-xl"
-              >
-                <SlidersHorizontal className="w-5 h-5" />
-              </Button>
+            <div className="flex items-center gap-3">
+              <AddProductDialog />
 
               <Button
                 variant="outline"
@@ -192,49 +210,24 @@ export default function DashboardPage() {
               </Button>
             </div>
           </div>
-
-          {/* Filters Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="border-t border-gray-200/50 overflow-hidden"
-              >
-                <div className="px-8 py-4 flex items-center gap-4">
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant={!selectedCategory ? "default" : "outline"}
-                      onClick={() => setSelectedCategory(null)}
-                      className={!selectedCategory ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white" : ""}
-                    >
-                      All
-                    </Button>
-                    {categories.map((cat) => (
-                      <Button
-                        key={cat}
-                        size="sm"
-                        variant={selectedCategory === cat ? "default" : "outline"}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={selectedCategory === cat ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white" : ""}
-                      >
-                        {cat}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </header>
 
         {/* Products Grid */}
         <main className="flex-1 overflow-y-auto p-8">
+          {/* Filters - Horizontal */}
+          <div className="mb-6">
+            <ProductFilters />
+          </div>
+
+          {/* Products */}
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-64">
               <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-700 rounded-full animate-spin" />
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <p className="text-lg font-medium">No products found</p>
+              <p className="text-sm">Try adjusting your filters</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -242,7 +235,6 @@ export default function DashboardPage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onEdit={setEditingProduct}
                 />
               ))}
             </div>
@@ -250,38 +242,7 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      {/* Cart Sidebar */}
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-
-      {/* Edit Product Modal */}
-      <AnimatePresence>
-        {editingProduct && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => setEditingProduct(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl"
-            >
-              <ProductForm
-                initialData={editingProduct}
-                onSubmit={(data) => {
-                  updateProductMutation.mutate({ ...editingProduct, ...data })
-                  setEditingProduct(null)
-                }}
-                onCancel={() => setEditingProduct(null)}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
